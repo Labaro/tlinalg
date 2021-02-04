@@ -135,17 +135,26 @@ def tubal_rank(A, tol=1e-10):
     return np.sum(s > tol)
 
 
-def t_qr(A):
+def t_qr(A, mode="reduced"):
     n_1, n_2, n_3 = A.shape
+    half_n_3 = round(n_3 / 2)
     A = np.fft.fft(A)
     Q = np.zeros((n_1, n_1, n_3), dtype=complex)
     R = np.zeros((n_1, n_2, n_3), dtype=complex)
-    Q[:, :, 0], R[:, :, 0] = np.linalg.qr(A[:, :, 0], mode='complete')
-    half_n_3 = round(n_3 / 2)
-    for i in range(1, half_n_3):
-        Q[:, :, i], R[:, :, i] = np.linalg.qr(A[:, :, i], mode='complete')
-        Q[:, :, n_3 - i] = np.conjugate(Q[:, :, i])
-        R[:, :, n_3 - i] = np.conjugate(R[:, :, i])
-    if n_3 % 2 == 0:
-        Q[:, :, half_n_3], R[:, :, half_n_3] = np.linalg.qr(A[:, :, half_n_3], mode='complete')
+    if mode == "complete":
+        Q[:, :, 0], R[:, :, 0] = np.linalg.qr(A[:, :, 0], mode='complete')
+        for i in range(1, half_n_3):
+            Q[:, :, i], R[:, :, i] = np.linalg.qr(A[:, :, i], mode='complete')
+            Q[:, :, n_3 - i] = np.conjugate(Q[:, :, i])
+            R[:, :, n_3 - i] = np.conjugate(R[:, :, i])
+        if n_3 % 2 == 0:
+            Q[:, :, half_n_3], R[:, :, half_n_3] = np.linalg.qr(A[:, :, half_n_3], mode='complete')
+    else:
+        Q[:, :, 0], R[:, :, 0] = np.linalg.qr(A[:, :, 0])
+        for i in range(1, half_n_3):
+            Q[:, :, i], R[:, :, i] = np.linalg.qr(A[:, :, i])
+            Q[:, :, n_3 - i] = np.conjugate(Q[:, :, i])
+            R[:, :, n_3 - i] = np.conjugate(R[:, :, i])
+        if n_3 % 2 == 0:
+            Q[:, :, half_n_3], R[:, :, half_n_3] = np.linalg.qr(A[:, :, half_n_3])
     return np.fft.ifft(Q).real, np.fft.ifft(R).real
