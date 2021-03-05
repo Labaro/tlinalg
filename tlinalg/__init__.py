@@ -30,9 +30,9 @@ def t_eye(n, n_3):
 def t_transpose(A):
     n_1, n_2, n_3 = A.shape
     A_t = np.zeros((n_2, n_1, n_3))
-    A_t[:, :, 0] = A[:, :, 0].getH()
+    A_t[:, :, 0] = np.conj(A[:, :, 0].T)
     for i in range(1, n_3):
-        A_t[:, :, i] = A[:, :, n_3 - i].getH()
+        A_t[:, :, i] = np.conj(A[:, :, n_3 - i].T)
     return A_t
 
 
